@@ -71,7 +71,7 @@ export async function syncStore(): Promise<DefinitionIndex> {
       return currentDefinitionIndex;
     }
     // Get definition index file
-    const response = await fetch(`/via-col-vento/definitions/supported_kbs.json`, {
+    const response = await fetch('/definitions/supported_kbs.json', {
       cache: 'reload',
     });
     const json: KeyboardDefinitionIndex = await response.json();
@@ -119,7 +119,7 @@ export const getMissingDefinition = async <
   version: K,
 ): Promise<[DefinitionVersionMap[K], K]> => {
   const vpid = getVendorProductId(device.vendorId, device.productId);
-  const url = `/via-col-vento/definitions/${version}/${vpid}.json`;
+  const url = `/definitions/${version}/${vpid}.json`;
   const response = await fetch(url);
   const json: DefinitionVersionMap[K] = await response.json();
   let definitions = deviceStore.get('definitions');
