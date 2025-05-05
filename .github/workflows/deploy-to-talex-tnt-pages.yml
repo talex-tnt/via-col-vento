@@ -27,7 +27,7 @@ jobs:
           echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
       - name: Build project with Bun
-        run: bun run build
+        run: BASE_PATH="/via-col-vento/" bun run build
 
       - name: Clone GitHub Pages repo
         run: |
