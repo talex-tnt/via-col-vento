@@ -1,5 +1,5 @@
 import {UnconnectedGlobalMenu} from './components/menus/global';
-import {Route} from 'wouter';
+import {Route, Router} from 'wouter';
 import PANES from './utils/pane-config';
 import {Home} from './components/Home';
 import {createGlobalStyle} from 'styled-components';
@@ -30,17 +30,18 @@ export default () => {
       }),
     [],
   );
-
   const CanvasRouter = renderMode === '2D' ? CanvasRouter2D : CanvasRouter3D;
   const testContextState = useState({clearTestKeys: () => {}});
+  const base = import.meta.env.BASE_URL;
   return (
     <>
         <TestContext.Provider value={testContextState}>
-          <GlobalStyle />
-          {hasHIDSupport && <UnconnectedGlobalMenu />}
-          <CanvasRouter />
-
-          <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
+            <GlobalStyle />
+            <Router base={base !== '/' ? base : undefined} >
+              {hasHIDSupport && <UnconnectedGlobalMenu />}
+              <CanvasRouter />
+              <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
+            </Router>
         </TestContext.Provider>
     </>
   );
