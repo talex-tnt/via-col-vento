@@ -26,8 +26,11 @@ jobs:
           curl -fsSL https://bun.sh/install | bash
           echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
+      - name: Define basename variable
+        run: echo "basename=via-col-vento" >> $GITHUB_ENV
+
       - name: Build project with Bun
-        run: BASE_PATH="/via-col-vento/" bun run build
+        run: BASE_PATH="/${{ env.basename }}/" bun run build
 
       - name: Clone GitHub Pages repo
         run: |
@@ -38,13 +41,13 @@ jobs:
 
       - name: Copy build to GitHub Pages repo
         run: |
-          rm -rf gh-pages-repo/via-col-vento
-          mkdir -p gh-pages-repo/via-col-vento
-          cp -r dist/* gh-pages-repo/via-col-vento/
+          rm -rf gh-pages-repo/${{ env.basename }}
+          mkdir -p gh-pages-repo/${{ env.basename }}
+          cp -r dist/* gh-pages-repo/${{ env.basename }}/
 
       - name: Commit and push
         run: |
           cd gh-pages-repo
-          git add via-col-vento
-          git commit -m "Deploy via-col-vento from source [ci skip]" || echo "No changes to commit"
+          git add ${{ env.basename }}
+          git commit -m "Deploy ${{ env.basename }} from source [ci skip]" || echo "No changes to commit"
           git push
