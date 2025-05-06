@@ -31,7 +31,7 @@ const defaultStoreData = {
     showDesignTab: false,
     disableFastRemap: false,
     renderMode: '2D' as const,
-    themeMode: 'dark' as const,
+    themeMode: 'light' as const,
     designDefinitionVersion: 'v3' as const,
     themeName: 'OLIVIA_DARK',
     macroEditor: {
