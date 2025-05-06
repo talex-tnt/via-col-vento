@@ -405,7 +405,8 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
             <canvas ref={canvasRef} style={{}} />
           </CanvasContainer>
         </GlowContainer>
-        {(macroData || overflowsTexture) && (
+        {/* {(macroData || overflowsTexture) && ( */}
+        {(macroData || label?.tooltipLabel) && (
           <TooltipContainer $rotate={rotation[2]}>
             <Keycap2DTooltip>
               {macroData || (label && label.tooltipLabel)}

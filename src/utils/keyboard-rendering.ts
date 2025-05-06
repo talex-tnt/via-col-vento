@@ -11,6 +11,7 @@ import {Color} from 'three';
 import {getThemeFromStore} from './device-store';
 import {
   getLabelForByte,
+  getTitleForByte,
   getShortNameForKeycode,
   getCustomKeycodeIndex,
   IKeycode,
@@ -482,7 +483,7 @@ export const getLabel = (
       getLabelForByte(keycodeByte, width * 100, basicKeyToByte, byteToKey) ??
       '';
     tooltipLabel =
-      getLabelForByte(keycodeByte, 700, basicKeyToByte, byteToKey) ?? '';
+      getTitleForByte(keycodeByte, 700, basicKeyToByte, byteToKey) ?? '';
   }
   let macroExpression: string | undefined;
   if (isMacroKeycodeByte(keycodeByte, basicKeyToByte)) {
