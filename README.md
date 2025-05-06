@@ -2,7 +2,7 @@
 of the [VIA Web Application](https://usevia.app)
 
 ### It features:
-- Improved Keycaps Tooltip details on (2D rendering only)
+- Improved Keycaps Tooltip details
 
 #### [VIA Col Vento - Dev ](https://talex-tnt.github.io/via-col-vento-dev) - Develop branch gets deployed here
 ---
