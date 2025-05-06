@@ -30,17 +30,15 @@ export default () => {
       }),
     [],
   );
-
   const CanvasRouter = renderMode === '2D' ? CanvasRouter2D : CanvasRouter3D;
   const testContextState = useState({clearTestKeys: () => {}});
   return (
     <>
         <TestContext.Provider value={testContextState}>
-          <GlobalStyle />
-          {hasHIDSupport && <UnconnectedGlobalMenu />}
-          <CanvasRouter />
-
-          <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
+            <GlobalStyle />
+            {hasHIDSupport && <UnconnectedGlobalMenu />}
+            <CanvasRouter />
+            <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
         </TestContext.Provider>
     </>
   );
