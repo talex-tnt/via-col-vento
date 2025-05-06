@@ -104,7 +104,10 @@ const paintKeycapLabel = (
     let fontSize = 13 * label.size;
     let fontHeight = 0.75 * fontSize;
     let faceMidLeftY = canvasHeight / 2;
-    context.font = `bold ${fontSize}px ${fontFamily}`;
+    const bold = true;
+    const maxWidth = canvasWidth - centerLabelMargin.x;
+    const minFontSize = 10;
+    fitTextToWidth(context,label.label, maxWidth, fontSize, minFontSize, fontFamily, bold);
     context.fillText(
       label.label,
       centerLabelMargin.x,
@@ -113,7 +116,7 @@ const paintKeycapLabel = (
     // return if label would have overflowed so that we know to show tooltip
     return (
       context.measureText(label.centerLabel).width >
-      canvasWidth - centerLabelMargin.x
+      maxWidth
     );
   } else if (typeof label.label === 'string') {
     let fontSize = 22;
@@ -126,6 +129,24 @@ const paintKeycapLabel = (
     );
   }
 };
+
+function fitTextToWidth(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, initialFontSize = 32, minFontSize = 8, fontFamily = 'Arial', bold = true) {
+	let fontSize = initialFontSize;
+	let lastWidth = Infinity;
+
+	for (let i = 0; i < 10; i++) { // Limit iterations to avoid infinite loop
+		ctx.font = `${bold ? 'bold ': ''}${fontSize}px ${fontFamily}`;
+		const metrics = ctx.measureText(text);
+		const width = metrics.width;
+		if (width <= maxWidth || width === lastWidth) {
+			break;
+		}
+		const ratio = maxWidth / width;
+		fontSize = Math.max(Math.floor(fontSize * ratio), minFontSize);
+		lastWidth = width;
+	}
+	return fontSize;
+}
 
 const paintKeycap = (
   canvas: HTMLCanvasElement,
