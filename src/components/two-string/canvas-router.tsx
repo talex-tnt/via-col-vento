@@ -57,7 +57,7 @@ const KeyboardRouteGroup = styled.div<{
   justify-content: center;
 `;
 
-export const CanvasRouter = () => {
+export const CanvasRouter = ({ height = 500}) => {
   const [path] = useLocation();
   const body = useRef(document.body);
   const containerRef = useRef(null);
@@ -104,7 +104,7 @@ export const CanvasRouter = () => {
     <>
       <div
         style={{
-          height: 500,
+          height,
           width: '100%',
           top: 0,
           transform: hideCanvasScene
