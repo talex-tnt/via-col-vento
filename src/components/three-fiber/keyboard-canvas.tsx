@@ -45,7 +45,7 @@ export const KeyboardCanvas: React.FC<
 
   const containerHeight = containerDimensions.height;
   const containerWidth = containerDimensions.width;
-  const minPadding = 35;
+  const minPadding = 60;
   const keyboardWidth = ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width - CSSVarObject.keyXSpacing + minPadding * 2);
   const keyboardHeight = ((CSSVarObject.keyHeight + CSSVarObject.keyYSpacing) * height - CSSVarObject.keyYSpacing + minPadding * 2);
   const widthRatio = containerWidth / keyboardWidth;
