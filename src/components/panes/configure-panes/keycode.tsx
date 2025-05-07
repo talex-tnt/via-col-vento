@@ -5,6 +5,10 @@ import {KeycodeModal} from '../../inputs/custom-keycode-modal';
 import {title, component} from '../../icons/keyboard';
 import {MessageDialog} from '../../inputs/message-dialog';
 import TextInput from '../../inputs/text-input';
+import {
+  TooltipContainer,
+} from 'src/components/two-string/unit-key/keycap-base';
+import {Keycap2DTooltip} from '../../inputs/tooltip';
 
 import {
   faTrash,
@@ -82,11 +86,23 @@ const Keycode = styled(Button)<{disabled: boolean}>`
   box-shadow: none;
   position: relative;
   border-radius: 10px;
-  ${(props: any) => props.disabled && `cursor:not-allowed;filter:opacity(50%);`}
+  ${(props: any) => props.disabled && `
+    cursor:not-allowed;
+    background: var(--bg_menu);
+    border: 4px solid var(--bg_control);
+    transform: none;
+  `}
   ${(props: any) => !props.disabled && `&:hover {
     border-color: var(--color_accent);
     transform: translate3d(0, -2px, 0);
-  }`}
+    }`}
+  ${(props: any) => props.disabled && `&:hover {
+    transform: none;
+    }`}
+
+  &:hover {
+    overflow: visible;
+  }
 `;
 
 const KeycodeContent = styled.div`
@@ -302,11 +318,16 @@ export const KeycodePane: FC = () => {
       <Keycode
         key={code}
         disabled={!selected || !keycodeInMaster(code, basicKeyToByte) && code != 'text'}
-        onClick={() => handleClick(code, index)}
+        onClick={() => {if(selected) {handleClick(code, index)}}}
         onMouseOver={() => setMouseOverDesc(title ? `${code}: ${title}` : code)}
         onMouseOut={() => setMouseOverDesc(null)}
       >
         <KeycodeContent>{name}</KeycodeContent>
+        <TooltipContainer $rotate={0} style={{[`-webkitfilter`]: 'none', filter: 'none'}}>
+          <Keycap2DTooltip>
+            {title ? `${code}: ${title}` : `${code}`}
+          </Keycap2DTooltip>
+        </TooltipContainer>
       </Keycode>
     );
   };
