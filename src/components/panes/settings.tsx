@@ -87,6 +87,7 @@ export const Settings = () => {
   const renderModeDefaultValue = renderModeOptions.find(
     (opt) => opt.value === renderMode,
   );
+  const fastKeymappingTooltipText = "After one key is assigned, it automatically selects another key to be assigned." ;
   return (
     <Pane>
       <Grid style={{overflow: 'hidden'}}>
@@ -111,13 +112,14 @@ export const Settings = () => {
                 />
               </Detail>
             </ControlRow>
-            <ControlRow>
-              <Label>Fast Key Mapping</Label>
-              <Detail>
+            <ControlRow >
+              <Label data-tooltip={fastKeymappingTooltipText}>Fast Key Mapping
+              </Label>
+              <Detail data-tooltip={fastKeymappingTooltipText}>
                 <AccentSlider
                   onChange={() => dispatch(toggleFastRemap())}
                   isChecked={!disableFastRemap}
-                />
+                  />
               </Detail>
             </ControlRow>
             <ControlRow>
