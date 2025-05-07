@@ -836,12 +836,17 @@ function dynamicShiftKey(keycode: IKeycode): IKeycode{
   };
 };
 
+function keyCodeToObject (acc: Record<string, IKeycode>, keycode: IKeycode): Record<string, IKeycode> {
+  return {...acc, [keycode.code]: keycode};
+};
+
 export function getKeycodes(numMacros = 16): IKeycodeMenu[] {
   const basicKeys = getBasicKeys();
   const specialKeys = getSpecialKeys();
-  const shiftedBasicKeycodes = basicKeys.keycodes.map(dynamicShiftKey);
-  const shiftedSpecialKeycodes = specialKeys.keycodes.map(dynamicShiftKey);
-  const specialShiftedKeys = {...specialKeys, keycodes: [...specialKeys.keycodes, ...shiftedBasicKeycodes, ...shiftedSpecialKeycodes]};
+  const specialKeycodes = specialKeys.keycodes.reduce(keyCodeToObject, {});
+  const shiftedBasicKeycodes = basicKeys.keycodes.map(dynamicShiftKey).reduce(keyCodeToObject, {});
+  const shiftedSpecialKeycodes = specialKeys.keycodes.map(dynamicShiftKey).reduce(keyCodeToObject, {});
+  const specialShiftedKeys = {...specialKeys, keycodes: [...Object.values({...specialKeycodes,...shiftedBasicKeycodes, ...shiftedSpecialKeycodes})]} as IKeycodeMenu;
   return [
     basicKeys,
     {

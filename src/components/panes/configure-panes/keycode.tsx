@@ -1,9 +1,10 @@
-import {FC, useState, useEffect, useMemo} from 'react';
+import {FC, useState, useEffect, useMemo, Key} from 'react';
 import styled from 'styled-components';
 import {Button} from '../../inputs/button';
 import {KeycodeModal} from '../../inputs/custom-keycode-modal';
 import {title, component} from '../../icons/keyboard';
 import {MessageDialog} from '../../inputs/message-dialog';
+import TextInput from '../../inputs/text-input';
 
 import * as EncoderPane from './encoder';
 import {
@@ -120,6 +121,10 @@ const KeycodeDesc = styled.div`
   }
 `;
 
+function keyCodeToObject (acc: Record<string, IKeycode>, keycode: IKeycode): Record<string, IKeycode> {
+  return {...acc, [keycode.code]: keycode};
+};
+
 const generateKeycodeCategories = (basicKeyToByte: Record<string, number>, numMacros: number = 16) =>
   getKeycodes(numMacros).concat(getOtherMenu(basicKeyToByte));
 
@@ -143,6 +148,8 @@ export const Pane: FC = () => {
   return <KeycodePane />;
 };
 
+const allKeycodesId = 'all_keycodes';
+
 export const KeycodePane: FC = () => {
   const dispatch = useAppDispatch();
   const macros = useAppSelector((state: any) => state.macros);
@@ -165,11 +172,10 @@ export const KeycodePane: FC = () => {
     return null;
   }
 
-  const [selectedCategory, setSelectedCategory] = useState(
-    KeycodeCategories[0].id,
-  );
+  const [selectedCategory, setSelectedCategory] = useState(allKeycodesId);
   const [mouseOverDesc, setMouseOverDesc] = useState<string | null>(null);
   const [showKeyTextInputModal, setShowKeyTextInputModal] = useState(false);
+  const [keycapsFilter, setKeycapsFilter] = useState('');
   const [codePendingForConfirmation, setCodePendingForConfirmation] = useState<number | null>(null);
 
   const getEnabledMenus = (): IKeycodeMenu[] => {
@@ -222,7 +228,7 @@ export const KeycodePane: FC = () => {
         {getEnabledMenus().map(({id, label}) => (
           <SubmenuRow
             $selected={id === selectedCategory}
-            onClick={() => setSelectedCategory(id)}
+            onClick={() => setSelectedCategory(selectedCategory === id ? allKeycodesId : id)}
             key={id}
           >
             {label}
@@ -314,6 +320,7 @@ export const KeycodePane: FC = () => {
     selectedCategory: string,
     selectedKeycode: number | null = null,
   ) => {
+
     const keycodeListItems = keycodes.map((keycode, i) =>
       renderKeycode(keycode, i, !!selectedKeycode),
     );
@@ -361,9 +368,12 @@ export const KeycodePane: FC = () => {
     }
   };
 
-  const selectedCategoryKeycodes = KeycodeCategories.find(
-    ({id}) => id === selectedCategory,
-  )?.keycodes as IKeycode[];
+  const selectedCategoryKeycodes = useMemo(() => {
+    const allKeycodesList = KeycodeCategories.reduce<IKeycode[]>((acc, {keycodes}) => [...acc, ...keycodes], []);
+    const allUniqueKeycodes = Object.values(allKeycodesList.reduce(keyCodeToObject, {})) as IKeycode[];
+    const selectedKeycodes = KeycodeCategories.find(({id}) => id === selectedCategory,)?.keycodes as IKeycode[]
+    return selectedCategory === allKeycodesId ? allUniqueKeycodes: selectedKeycodes;
+  }, [KeycodeCategories, selectedCategory]);
 
   const onConfirm = () => {
     if(typeof codePendingForConfirmation === 'number'){
@@ -372,7 +382,16 @@ export const KeycodePane: FC = () => {
     setCodePendingForConfirmation(null);
   };
   const onCancel = () => { setCodePendingForConfirmation(null); };
-
+  const placeholder = `Search among ${selectedCategoryKeycodes.length} keycodes`;
+  const keycapsFilterMargin = '10px 10px 10px 30px';
+  const filteredKeycodes = selectedCategoryKeycodes.filter((keycode) => {
+    const {name, code} = keycode;
+    return (
+      name.toLowerCase().includes(keycapsFilter.toLowerCase()) ||
+      code.toLowerCase().includes(keycapsFilter.toLowerCase())
+    );
+  }
+  );
   return (
     <>
      <MessageDialog isOpen={codePendingForConfirmation !== null} onConfirm={onConfirm} onCancel={onCancel}>
@@ -380,8 +399,9 @@ export const KeycodePane: FC = () => {
       </MessageDialog>
       <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
       <OverflowCell>
+        <TextInput $width='50%' $margin={keycapsFilterMargin} type="text" placeholder={placeholder} onChange={(e) => setKeycapsFilter(e.target.value)} value={keycapsFilter} />
         <KeycodeContainer>
-          {renderSelectedCategory(selectedCategoryKeycodes, selectedCategory, selectedKey)}
+          {renderSelectedCategory(filteredKeycodes, selectedCategory, selectedKey)}
         </KeycodeContainer>
         <KeycodeDesc>{mouseOverDesc}</KeycodeDesc>
         {showKeyTextInputModal && renderKeyInputModal()}
