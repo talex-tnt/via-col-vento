@@ -323,7 +323,7 @@ export const KeycodePane: FC = () => {
         onMouseOut={() => setMouseOverDesc(null)}
       >
         <KeycodeContent>{name}</KeycodeContent>
-        <TooltipContainer $rotate={0} style={{[`-webkitfilter`]: 'none', filter: 'none'}}>
+        <TooltipContainer $rotate={0}>
           <Keycap2DTooltip>
             {title ? `${code}: ${title}` : `${code}`}
           </Keycap2DTooltip>
