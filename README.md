@@ -3,6 +3,7 @@ of the [VIA Web Application](https://usevia.app)
 
 ### It features:
 - Improved Keycaps Tooltip details
+- Improved Layout: slightly larger top panel provides more space for keyboard improving the legends readability
 
 #### [VIA Col Vento - Dev ](https://talex-tnt.github.io/via-col-vento-dev) - Develop branch gets deployed here
 ---
