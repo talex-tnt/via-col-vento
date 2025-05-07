@@ -385,10 +385,11 @@ export const KeycodePane: FC = () => {
   const placeholder = `Search among ${selectedCategoryKeycodes.length} keycodes`;
   const keycapsFilterMargin = '10px 10px 10px 30px';
   const filteredKeycodes = selectedCategoryKeycodes.filter((keycode) => {
-    const {name, code} = keycode;
+    const {name, code, title} = keycode;
     return (
-      name.toLowerCase().includes(keycapsFilter.toLowerCase()) ||
-      code.toLowerCase().includes(keycapsFilter.toLowerCase())
+      name?.toLowerCase().includes(keycapsFilter.toLowerCase()) ||
+      code?.toLowerCase().includes(keycapsFilter.toLowerCase()) ||
+      title?.toLowerCase().includes(keycapsFilter.toLowerCase())
     );
   }
   );
