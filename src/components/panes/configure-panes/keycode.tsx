@@ -69,11 +69,11 @@ const Keycode = styled(Button)<{disabled: boolean}>`
   box-shadow: none;
   position: relative;
   border-radius: 10px;
-  &:hover {
+  ${(props: any) => props.disabled && `cursor:not-allowed;filter:opacity(50%);`}
+  ${(props: any) => !props.disabled && `&:hover {
     border-color: var(--color_accent);
     transform: translate3d(0, -2px, 0);
-  }
-  ${(props: any) => props.disabled && `cursor:not-allowed;filter:opacity(50%);`}
+  }`}
 `;
 
 const KeycodeContent = styled.div`
@@ -273,12 +273,12 @@ export const KeycodePane: FC = () => {
     }
   };
 
-  const renderKeycode = (keycode: IKeycode, index: number) => {
+  const renderKeycode = (keycode: IKeycode, index: number, selected: boolean) => {
     const {code, title, name} = keycode;
     return (
       <Keycode
         key={code}
-        disabled={!keycodeInMaster(code, basicKeyToByte) && code != 'text'}
+        disabled={!selected || !keycodeInMaster(code, basicKeyToByte) && code != 'text'}
         onClick={() => handleClick(code, index)}
         onMouseOver={() => setMouseOverDesc(title ? `${code}: ${title}` : code)}
         onMouseOut={() => setMouseOverDesc(null)}
@@ -304,9 +304,10 @@ export const KeycodePane: FC = () => {
   const renderSelectedCategory = (
     keycodes: IKeycode[],
     selectedCategory: string,
+    selectedKeycode: number | null = null,
   ) => {
     const keycodeListItems = keycodes.map((keycode, i) =>
-      renderKeycode(keycode, i),
+      renderKeycode(keycode, i, !!selectedKeycode),
     );
     switch (selectedCategory) {
       case 'macro': {
@@ -340,6 +341,7 @@ export const KeycodePane: FC = () => {
                   code: `CUSTOM(${idx})`,
                 },
                 idx,
+                !!selectedKeycode
               );
             })}
           </KeycodeList>
@@ -360,7 +362,7 @@ export const KeycodePane: FC = () => {
       <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
       <OverflowCell>
         <KeycodeContainer>
-          {renderSelectedCategory(selectedCategoryKeycodes, selectedCategory)}
+          {renderSelectedCategory(selectedCategoryKeycodes, selectedCategory, selectedKey)}
         </KeycodeContainer>
         <KeycodeDesc>{mouseOverDesc}</KeycodeDesc>
         {showKeyTextInputModal && renderKeyInputModal()}
