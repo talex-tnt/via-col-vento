@@ -4,7 +4,8 @@ of the [VIA Web Application](https://usevia.app)
 ### It features:
 - Improved Keycaps Tooltip details
 - Improved Layout: slightly larger top panel provides more space for keyboard improving the legends readability
-- Allow to change a key only if the destination key is selected
+- Assigning a key is allowed only if the destination key is selected, otherwise buttons are disabled
+- Added confirmation modal when assigning a new keycode to a key, only if the Fast Remap feature is disabled
 
 #### [VIA Col Vento - Dev ](https://talex-tnt.github.io/via-col-vento-dev) - Develop branch gets deployed here
 ---

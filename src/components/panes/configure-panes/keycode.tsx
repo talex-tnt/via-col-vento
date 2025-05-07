@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import {Button} from '../../inputs/button';
 import {KeycodeModal} from '../../inputs/custom-keycode-modal';
 import {title, component} from '../../icons/keyboard';
+import {MessageDialog} from '../../inputs/message-dialog';
+
 import * as EncoderPane from './encoder';
 import {
   keycodeInMaster,
@@ -44,6 +46,7 @@ import {
   getDisableFastRemap,
 } from 'src/store/settingsSlice';
 import {getNextKey} from 'src/utils/keyboard-rendering';
+import { update } from 'idb-keyval';
 const KeycodeList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, 64px);
@@ -167,6 +170,7 @@ export const KeycodePane: FC = () => {
   );
   const [mouseOverDesc, setMouseOverDesc] = useState<string | null>(null);
   const [showKeyTextInputModal, setShowKeyTextInputModal] = useState(false);
+  const [codePendingForConfirmation, setCodePendingForConfirmation] = useState<number | null>(null);
 
   const getEnabledMenus = (): IKeycodeMenu[] => {
     if (isVIADefinitionV3(selectedDefinition)) {
@@ -266,11 +270,15 @@ export const KeycodePane: FC = () => {
     if (code == 'text') {
       setShowKeyTextInputModal(true);
     } else {
-      return (
-        keycodeInMaster(code, basicKeyToByte) &&
-        updateKey(getByteForCode(code, basicKeyToByte))
-      );
-    }
+        if(keycodeInMaster(code, basicKeyToByte)) {
+          const c = getByteForCode(code, basicKeyToByte);
+          if(disableFastRemap) {
+            setCodePendingForConfirmation(c);
+          } else {
+            updateKey(c);
+          }
+        }
+      }
   };
 
   const renderKeycode = (keycode: IKeycode, index: number, selected: boolean) => {
@@ -357,8 +365,19 @@ export const KeycodePane: FC = () => {
     ({id}) => id === selectedCategory,
   )?.keycodes as IKeycode[];
 
+  const onConfirm = () => {
+    if(typeof codePendingForConfirmation === 'number'){
+      updateKey(codePendingForConfirmation as number);
+    }
+    setCodePendingForConfirmation(null);
+  };
+  const onCancel = () => { setCodePendingForConfirmation(null); };
+
   return (
     <>
+     <MessageDialog isOpen={codePendingForConfirmation !== null} onConfirm={onConfirm} onCancel={onCancel}>
+        Save on the keyboard?
+      </MessageDialog>
       <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
       <OverflowCell>
         <KeycodeContainer>
