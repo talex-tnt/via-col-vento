@@ -6,6 +6,15 @@ import {title, component} from '../../icons/keyboard';
 import {MessageDialog} from '../../inputs/message-dialog';
 import TextInput from '../../inputs/text-input';
 
+import {
+  faTrash,
+  faXmark
+} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {
+  IconButtonUnfilledContainer,
+} from 'src/components/inputs/icon-button';
+
 import * as EncoderPane from './encoder';
 import {
   keycodeInMaster,
@@ -401,6 +410,19 @@ export const KeycodePane: FC = () => {
       <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
       <OverflowCell>
         <TextInput $width='50%' $margin={keycapsFilterMargin} type="text" placeholder={placeholder} onChange={(e) => setKeycapsFilter(e.target.value)} value={keycapsFilter} />
+        <IconButtonUnfilledContainer
+            onClick={() => {
+              setKeycapsFilter('');
+            }}
+            disabled={keycapsFilter.length === 0}
+            style={{borderRight: '1px solid var(--color_accent)'}}
+          >
+            <FontAwesomeIcon
+              size={'sm'}
+              color={'var(--color_accent)'}
+              icon={faXmark}
+            />
+          </IconButtonUnfilledContainer>
         <KeycodeContainer>
           {renderSelectedCategory(filteredKeycodes, selectedCategory, selectedKey)}
         </KeycodeContainer>
