@@ -656,27 +656,6 @@ function getSpecialKeys(): IKeycodeMenu {
     label: 'Special',
     width: 'label',
     keycodes: [
-      {name: '~', code: 'S(KC_GRV)', keys: '`', title: 'Shift + `'},
-      {name: '!', code: 'S(KC_1)', keys: '!', title: 'Shift + 1'},
-      {name: '@', code: 'S(KC_2)', keys: '@', title: 'Shift + 2'},
-      {name: '#', code: 'S(KC_3)', keys: '#', title: 'Shift + 3'},
-      {name: '$', code: 'S(KC_4)', keys: '$', title: 'Shift + 4'},
-      {name: '%', code: 'S(KC_5)', keys: '%', title: 'Shift + 5'},
-      {name: '^', code: 'S(KC_6)', keys: '^', title: 'Shift + 6'},
-      {name: '&', code: 'S(KC_7)', keys: '&', title: 'Shift + 7'},
-      {name: '*', code: 'S(KC_8)', keys: '*', title: 'Shift + 8'},
-      {name: '(', code: 'S(KC_9)', keys: '(', title: 'Shift + 9'},
-      {name: ')', code: 'S(KC_0)', keys: ')', title: 'Shift + 0'},
-      {name: '_', code: 'S(KC_MINS)', keys: '_', title: 'Shift + -'},
-      {name: '+', code: 'S(KC_EQL)', keys: '+', title: 'Shift + ='},
-      {name: '{', code: 'S(KC_LBRC)', keys: '{', title: 'Shift + ['},
-      {name: '}', code: 'S(KC_RBRC)', keys: '}', title: 'Shift + ]'},
-      {name: '|', code: 'S(KC_BSLS)', keys: '|', title: 'Shift + \\'},
-      {name: ':', code: 'S(KC_SCLN)', keys: ':', title: 'Shift + /'},
-      {name: '"', code: 'S(KC_QUOT)', keys: '"', title: "Shift + '"},
-      {name: '<', code: 'S(KC_COMM)', keys: '<', title: 'Shift + ,'},
-      {name: '>', code: 'S(KC_DOT)', keys: '>', title: 'Shift + .'},
-      {name: '?', code: 'S(KC_SLSH)', keys: '?', title: 'Shift + /'},
       {name: 'NUHS', code: 'KC_NUHS', title: 'Non-US # and ~'},
       {name: 'NUBS', code: 'KC_NUBS', title: 'Non-US \\ and |'},
       {name: 'Ro', code: 'KC_RO', title: 'JIS \\ and |'},
@@ -827,14 +806,73 @@ function getSpecialKeys(): IKeycodeMenu {
     ],
   };
 }
-function dynamicShiftKey(keycode: IKeycode): IKeycode{
+
+function dynamicShiftKey(keycode: IKeycode): IKeycode | undefined {
+  const blacklist = {
+    KC_LSFT: true,
+    KC_RSFT: true,
+    KC_LCTL: true,
+    KC_RCTL: true,
+    KC_LALT: true,
+    KC_RALT: true,
+    KC_LGUI: true,
+    KC_RGUI: true,
+    KC_TRNS: true,
+    KC_ESC: true,
+    KC_NO: true,
+  };
   const {name, code} = keycode;
+  if (/^S\(.+\)$/.test(code) || blacklist[code as keyof typeof blacklist]) {
+    return undefined;
+  }
   return {
     name: `S+${name}`,
     code: `S(${code})`,
     title: `Shift + ${name}`
   };
 };
+
+function getShiftedKeys({basicKeys, specialKeys}: { basicKeys: IKeycodeMenu, specialKeys: IKeycodeMenu}): IKeycodeMenu {
+  const shiftedKeys = [
+    {name: '~', code: 'S(KC_GRV)', keys: '`', title: 'Shift + `'},
+    {name: '!', code: 'S(KC_1)', keys: '!', title: 'Shift + 1'},
+    {name: '@', code: 'S(KC_2)', keys: '@', title: 'Shift + 2'},
+    {name: '#', code: 'S(KC_3)', keys: '#', title: 'Shift + 3'},
+    {name: '$', code: 'S(KC_4)', keys: '$', title: 'Shift + 4'},
+    {name: '%', code: 'S(KC_5)', keys: '%', title: 'Shift + 5'},
+    {name: '^', code: 'S(KC_6)', keys: '^', title: 'Shift + 6'},
+    {name: '&', code: 'S(KC_7)', keys: '&', title: 'Shift + 7'},
+    {name: '*', code: 'S(KC_8)', keys: '*', title: 'Shift + 8'},
+    {name: '(', code: 'S(KC_9)', keys: '(', title: 'Shift + 9'},
+    {name: ')', code: 'S(KC_0)', keys: ')', title: 'Shift + 0'},
+    {name: '_', code: 'S(KC_MINS)', keys: '_', title: 'Shift + -'},
+    {name: '+', code: 'S(KC_EQL)', keys: '+', title: 'Shift + ='},
+    {name: '{', code: 'S(KC_LBRC)', keys: '{', title: 'Shift + ['},
+    {name: '}', code: 'S(KC_RBRC)', keys: '}', title: 'Shift + ]'},
+    {name: '|', code: 'S(KC_BSLS)', keys: '|', title: 'Shift + \\'},
+    {name: ':', code: 'S(KC_SCLN)', keys: ':', title: 'Shift + /'},
+    {name: '"', code: 'S(KC_QUOT)', keys: '"', title: "Shift + '"},
+    {name: '<', code: 'S(KC_COMM)', keys: '<', title: 'Shift + ,'},
+    {name: '>', code: 'S(KC_DOT)', keys: '>', title: 'Shift + .'},
+    {name: '?', code: 'S(KC_SLSH)', keys: '?', title: 'Shift + /'},
+  ];
+  const shiftedHardcodedKeycodes = shiftedKeys.reduce(keyCodeToObject, {});
+  const shiftedBasicKeycodes = basicKeys.keycodes
+    .map(dynamicShiftKey)
+    .filter((o): o is IKeycode => o !== undefined)
+    .reduce(keyCodeToObject, {});
+  const shiftedSpecialKeycodes = specialKeys.keycodes
+    .map(dynamicShiftKey)
+    .filter((o): o is IKeycode => o !== undefined)
+    .reduce(keyCodeToObject, {});
+  const keycodes = [...Object.values({...shiftedBasicKeycodes, ...shiftedSpecialKeycodes, ...shiftedHardcodedKeycodes})];
+  return  {
+    id: 'shifted',
+    label: 'Shifted',
+    width: 'label',
+    keycodes,
+  };
+}
 
 function keyCodeToObject (acc: Record<string, IKeycode>, keycode: IKeycode): Record<string, IKeycode> {
   return {...acc, [keycode.code]: keycode};
@@ -843,10 +881,7 @@ function keyCodeToObject (acc: Record<string, IKeycode>, keycode: IKeycode): Rec
 export function getKeycodes(numMacros = 16): IKeycodeMenu[] {
   const basicKeys = getBasicKeys();
   const specialKeys = getSpecialKeys();
-  const specialKeycodes = specialKeys.keycodes.reduce(keyCodeToObject, {});
-  const shiftedBasicKeycodes = basicKeys.keycodes.map(dynamicShiftKey).reduce(keyCodeToObject, {});
-  const shiftedSpecialKeycodes = specialKeys.keycodes.map(dynamicShiftKey).reduce(keyCodeToObject, {});
-  const specialShiftedKeys = {...specialKeys, keycodes: [...Object.values({...specialKeycodes,...shiftedBasicKeycodes, ...shiftedSpecialKeycodes})]} as IKeycodeMenu;
+  const shiftedKeys = getShiftedKeys({basicKeys, specialKeys});
   return [
     basicKeys,
     {
@@ -965,7 +1000,8 @@ export function getKeycodes(numMacros = 16): IKeycodeMenu[] {
       keycodes: generateMacros(numMacros)
     },
     buildLayerMenu(),
-    specialShiftedKeys,
+    shiftedKeys,
+    specialKeys,
     /* These are for controlling the original backlighting and bottom RGB. */
     {
       id: 'qmk_lighting',
@@ -1034,7 +1070,7 @@ export const categoriesForKeycodeModule = (
   keycodeModule: BuiltInKeycodeModule | 'default',
 ) =>
   ({
-    default: ['basic', 'media', 'macro', 'layers', 'special'],
+    default: ['basic', 'media', 'macro', 'layers', 'special', 'shifted'],
     [BuiltInKeycodeModule.WTLighting]: ['wt_lighting'],
     [BuiltInKeycodeModule.QMKLighting]: ['qmk_lighting'],
   }[keycodeModule]);

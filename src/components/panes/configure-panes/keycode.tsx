@@ -365,7 +365,14 @@ export const KeycodePane: FC = () => {
       case 'special': {
         return (
           <KeycodeList>
-            {keycodeListItems.concat(renderCustomKeycode())}
+            {[renderCustomKeycode()].concat(keycodeListItems)}
+          </KeycodeList>
+        );
+      }
+      case 'shifted': {
+        return (
+          <KeycodeList>
+            {keycodeListItems}
           </KeycodeList>
         );
       }
