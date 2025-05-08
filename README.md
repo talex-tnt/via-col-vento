@@ -7,6 +7,8 @@ of the [VIA Web Application](https://usevia.app)
 - Assigning a key is allowed only if the destination key is selected, otherwise buttons are disabled
 - Added confirmation modal when assigning a new keycode to a key, only if the Fast Remap feature is disabled
 - Filterable keycodes + new pseudo category with all the available keycodes in single place
+- Resizable top/bottom panels: just drag the the horizontal line with the mouse
+- Shifted keys category
 
 #### [VIA Col Vento - Dev ](https://talex-tnt.github.io/via-col-vento-dev) - Develop branch gets deployed here
 ---

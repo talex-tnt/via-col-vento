@@ -25,6 +25,7 @@ import {useLocation} from 'wouter';
 import {ConfigureKeyboard} from '../n-links/keyboard/configure';
 import {Design} from '../n-links/keyboard/design';
 import {Test} from '../n-links/keyboard/test';
+import {useCanvasConfig} from 'src/utils/canvas';
 
 const KeyboardBG = styled.div<{
   onClick: () => void;
@@ -57,49 +58,31 @@ const KeyboardRouteGroup = styled.div<{
   justify-content: center;
 `;
 
-export const CanvasRouter = ({ height = 500}) => {
+export const CanvasRouter = ({ height = "50%"} : { height?: number | string }) => {
   const [path] = useLocation();
   const body = useRef(document.body);
   const containerRef = useRef(null);
   const loadProgress = useAppSelector(getLoadProgress);
-  const {progress} = useProgress();
   const dispatch = useAppDispatch();
   const containerDimensions = useSize(containerRef);
   const dimensions = useSize(body);
-  const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const selectedDefinition = useAppSelector(getSelectedDefinition);
-  const definitionVersion = useAppSelector(getDesignDefinitionVersion);
   const theme = useAppSelector(getSelectedTheme);
   const accentColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
   const showLoader =
     path === '/' && (!selectedDefinition || loadProgress !== 1);
-  const versionDefinitions: DefinitionVersionMap[] = useMemo(
-    () =>
-      localDefinitions.filter(
-        (definitionMap) => definitionMap[definitionVersion],
-      ),
-    [localDefinitions, definitionVersion],
-  );
-  const hideDesignScene = '/design' === path && !versionDefinitions.length;
-  const hideConfigureScene =
-    '/' === path &&
-    (!selectedDefinition || (loadProgress + progress / 100) / 2 !== 1);
   const terrainOnClick = useCallback(() => {
     if (true) {
       dispatch(updateSelectedKey(null));
     }
   }, [dispatch]);
-  const showAuthorizeButton = 'hid' in navigator || OVERRIDE_HID_CHECK;
-  const hideCanvasScene =
-    !showAuthorizeButton ||
-    ['/settings', '/errors'].includes(path) ||
-    hideDesignScene ||
-    hideConfigureScene;
+
   const configureKeyboardIsSelectable = useAppSelector(
     getConfigureKeyboardIsSelectable,
   );
-  const hideTerrainBG = showLoader;
+  const { hideCanvasScene, showAuthorizeButton } = useCanvasConfig();
 
+  const hideTerrainBG = showLoader;
   return (
     <>
       <div

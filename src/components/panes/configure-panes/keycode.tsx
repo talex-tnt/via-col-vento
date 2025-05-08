@@ -131,7 +131,8 @@ const KeycodeContainer = styled.div`
 const KeycodeDesc = styled.div`
   position: fixed;
   bottom: 0;
-  background: #d9d9d97a;
+  background: var(--bg_menu);
+  color: var(--color_label);
   box-sizing: border-box;
   transition: opacity 0.4s ease-out;
   height: 25px;
@@ -139,6 +140,7 @@ const KeycodeDesc = styled.div`
   line-height: 14px;
   padding: 5px;
   font-size: 14px;
+  font-weight: bold;
   opacity: 1;
   pointer-events: none;
   &:empty {
@@ -365,7 +367,14 @@ export const KeycodePane: FC = () => {
       case 'special': {
         return (
           <KeycodeList>
-            {keycodeListItems.concat(renderCustomKeycode())}
+            {[renderCustomKeycode()].concat(keycodeListItems)}
+          </KeycodeList>
+        );
+      }
+      case 'shifted': {
+        return (
+          <KeycodeList>
+            {keycodeListItems}
           </KeycodeList>
         );
       }

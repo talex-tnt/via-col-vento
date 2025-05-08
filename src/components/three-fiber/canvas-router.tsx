@@ -6,18 +6,14 @@ import {
   OrbitControls,
   SpotLight,
   useGLTF,
-  useProgress,
 } from '@react-three/drei';
 import {Canvas} from '@react-three/fiber';
-import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
+import {KeyColorType} from '@the-via/reader';
 import cubeySrc from 'assets/models/cubey.glb';
 import glbSrc from 'assets/models/keyboard_components.glb';
 import React, {Suspense, useCallback, useEffect, useMemo, useRef} from 'react';
 import {shallowEqual} from 'react-redux';
-import {
-  getCustomDefinitions,
-  getSelectedDefinition,
-} from 'src/store/definitionsSlice';
+import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
@@ -25,11 +21,7 @@ import {
   getLoadProgress,
   updateSelectedKey,
 } from 'src/store/keymapSlice';
-import {
-  getDesignDefinitionVersion,
-  getSelectedTheme,
-} from 'src/store/settingsSlice';
-import {OVERRIDE_HID_CHECK} from 'src/utils/override';
+import {getSelectedTheme} from 'src/store/settingsSlice';
 import {useSize} from 'src/utils/use-size';
 import {Object3D, SpotLight as ThreeSpotLight} from 'three';
 import {useLocation} from 'wouter';
@@ -40,6 +32,8 @@ import {Test} from '../n-links/keyboard/test';
 import {Camera} from './camera';
 import {LoaderCubey} from './loader-cubey';
 import {UpdateUVMaps} from './update-uv-maps';
+
+import {useCanvasConfig} from 'src/utils/canvas';
 
 useGLTF.preload(cubeySrc, true, true);
 useGLTF.preload(glbSrc, true, true);
@@ -64,7 +58,7 @@ const KeyboardBG: React.FC<{
   );
 }, shallowEqual);
 
-export const CanvasRouter = ({ height = 500 }) => {
+export const CanvasRouter = ({ height }: { height?: number | string }) => {
   return (
     <Suspense fallback={null}>
       <LazyRouter height={height}/>
@@ -77,44 +71,28 @@ const LazyRouter = React.lazy(async () => {
   return {default: NonSuspenseCanvasRouter};
 });
 
-export const NonSuspenseCanvasRouter = ({ height = 500}) => {
+
+export const NonSuspenseCanvasRouter = ({ height = 500}: { height?: number | string }) => {
   const [path] = useLocation();
   const body = useRef(document.body);
   const containerRef = useRef(null);
   const loadProgress = useAppSelector(getLoadProgress);
-  const {progress} = useProgress();
   const dispatch = useAppDispatch();
   const dimensions = useSize(body);
-  const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const selectedDefinition = useAppSelector(getSelectedDefinition);
-  const definitionVersion = useAppSelector(getDesignDefinitionVersion);
   const theme = useAppSelector(getSelectedTheme);
   const accentColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
   const showLoader =
     path === '/' && (!selectedDefinition || loadProgress !== 1);
   useGLTF(glbSrc, true, true);
-  const versionDefinitions: DefinitionVersionMap[] = useMemo(
-    () =>
-      localDefinitions.filter(
-        (definitionMap) => definitionMap[definitionVersion],
-      ),
-    [localDefinitions, definitionVersion],
-  );
-  const hideDesignScene = '/design' === path && !versionDefinitions.length;
-  const hideConfigureScene =
-    '/' === path &&
-    (!selectedDefinition || (loadProgress + progress / 100) / 2 !== 1);
+
   const terrainOnClick = useCallback(() => {
     if (true) {
       dispatch(updateSelectedKey(null));
     }
   }, [dispatch]);
-  const showAuthorizeButton = 'hid' in navigator || OVERRIDE_HID_CHECK;
-  const hideCanvasScene =
-    !showAuthorizeButton ||
-    ['/settings', '/errors'].includes(path) ||
-    hideDesignScene ||
-    hideConfigureScene;
+  const { hideCanvasScene, showAuthorizeButton } = useCanvasConfig();
+
   const configureKeyboardIsSelectable = useAppSelector(
     getConfigureKeyboardIsSelectable,
   );

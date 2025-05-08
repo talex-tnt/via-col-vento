@@ -10,10 +10,15 @@ const ExternalLinkContainer = styled.span`
   right: 1em;
   display: flex;
   gap: 1em;
+  color: var(--color_label);
+  align-items: center;
 `;
 
 export const ExternalLinks = () => (
   <ExternalLinkContainer>
+    <span>
+      Please support the original project:
+    </span>
     <a href="https://caniusevia.com/" target="_blank">
       <CategoryIconContainer>
         <VIALogo height="25px" fill="currentColor" />
@@ -26,7 +31,7 @@ export const ExternalLinks = () => (
         <CategoryMenuTooltip>Discord</CategoryMenuTooltip>
       </CategoryIconContainer>
     </a>
-    <a href="https://github.com/the-via/app" target="_blank">
+    <a href="https://github.com/talex-tnt/via-col-vento" target="_blank">
       <CategoryIconContainer>
         <FontAwesomeIcon size={'xl'} icon={faGithub} />
         <CategoryMenuTooltip>Github</CategoryMenuTooltip>
