@@ -9,6 +9,7 @@ import {
   ThreeFiberKeycapProps,
 } from 'src/types/keyboard-rendering';
 import {TestKeyState} from 'src/types/types';
+import {fitTextToWidth} from 'src/utils/canvas'
 import * as THREE from 'three';
 import {KeycapTooltip} from '../../inputs/tooltip';
 
@@ -178,7 +179,10 @@ const paintKeycapLabel = (
     let fontSize = 37.5 * label.size;
     let fontHeightTU = (0.75 * fontSize) / canvas.height;
     let faceMidLeftY = (rect.tr.y + rect.bl.y) / 2;
-    context.font = `bold ${fontSize}px ${fontFamily}`;
+     const bold = true;
+    const maxWidth =  (rect.tr.x - (rect.bl.x + centerLabelMargin.x)) * canvas.width;
+    const minFontSize = 30;
+    fitTextToWidth(context,label.label, maxWidth, fontSize, minFontSize, fontFamily, bold);
     context.fillText(
       label.label,
       (rect.bl.x + centerLabelMargin.x) * canvas.width,
@@ -188,7 +192,7 @@ const paintKeycapLabel = (
     // return if label would have overflowed so that we know to show tooltip
     return (
       context.measureText(label.centerLabel).width >
-      (rect.tr.x - (rect.bl.x + centerLabelMargin.x)) * canvas.width
+      maxWidth
     );
   } else if (typeof label.label === 'string') {
     let fontSize = 75;
@@ -463,7 +467,8 @@ export const Keycap: React.FC<ThreeFiberKeycapProps> = React.memo((props) => {
           />
         </AniMeshMaterial>
       </animated.mesh>
-      {(macroData || overflowsTexture) && (
+      {/* {(macroData || overflowsTexture) && ( */}
+      {(macroData || label?.tooltipLabel) && (
         <React.Suspense fallback={null}>
           <animated.group
             position={props.position}

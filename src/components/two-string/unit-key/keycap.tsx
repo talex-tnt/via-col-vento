@@ -7,6 +7,8 @@ import styled from 'styled-components';
 import {Keycap2DTooltip} from '../../inputs/tooltip';
 import {ComboKeycap} from './combo-keycap';
 import {EncoderKey} from './encoder';
+import {fitTextToWidth} from 'src/utils/canvas'
+
 import {
   CanvasContainer,
   KeycapContainer,
@@ -104,7 +106,10 @@ const paintKeycapLabel = (
     let fontSize = 13 * label.size;
     let fontHeight = 0.75 * fontSize;
     let faceMidLeftY = canvasHeight / 2;
-    context.font = `bold ${fontSize}px ${fontFamily}`;
+    const bold = true;
+    const maxWidth = canvasWidth - centerLabelMargin.x;
+    const minFontSize = 10;
+    fitTextToWidth(context,label.label, maxWidth, fontSize, minFontSize, fontFamily, bold);
     context.fillText(
       label.label,
       centerLabelMargin.x,
@@ -113,7 +118,7 @@ const paintKeycapLabel = (
     // return if label would have overflowed so that we know to show tooltip
     return (
       context.measureText(label.centerLabel).width >
-      canvasWidth - centerLabelMargin.x
+      maxWidth
     );
   } else if (typeof label.label === 'string') {
     let fontSize = 22;
@@ -405,7 +410,8 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
             <canvas ref={canvasRef} style={{}} />
           </CanvasContainer>
         </GlowContainer>
-        {(macroData || overflowsTexture) && (
+        {/* {(macroData || overflowsTexture) && ( */}
+        {(macroData || label?.tooltipLabel) && (
           <TooltipContainer $rotate={rotation[2]}>
             <Keycap2DTooltip>
               {macroData || (label && label.tooltipLabel)}

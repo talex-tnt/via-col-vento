@@ -1,6 +1,11 @@
 import styled from 'styled-components';
 
-const TextInput = styled.input`
+interface TextInputProps {
+  $margin?: string;
+  $width?: string;
+}
+
+const TextInput = styled.input<TextInputProps>`
   background: none;
   border: none;
   border-bottom: 1px solid var(--color_accent);
@@ -20,6 +25,8 @@ const TextInput = styled.input`
   &::placeholder {
     color: var(--color_control);
   }
+  margin: ${({$margin}) => $margin};
+  width: ${({$width}) => $width};
 `;
 
 export default TextInput;

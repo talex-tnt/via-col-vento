@@ -21,22 +21,18 @@ export const KeyboardCanvas: React.FC<KeyboardCanvasProps<React.MouseEvent>> = (
     [otherProps.keys],
   );
   const containerHeight = containerDimensions.height;
-  const minPadding = 35;
-  const ratio =
-    Math.min(
-      Math.min(
-        1,
-        containerDimensions &&
-          containerDimensions.width /
-            ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width -
-              CSSVarObject.keyXSpacing +
-              minPadding * 2),
-      ),
-      containerHeight /
-        ((CSSVarObject.keyHeight + CSSVarObject.keyYSpacing) * height -
-          CSSVarObject.keyYSpacing +
-          minPadding * 2),
-    ) || 1;
+  const containerWidth = containerDimensions.width;
+  const minPadding = 60;
+  const keyboardWidth = ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width - CSSVarObject.keyXSpacing + minPadding * 2);
+  const keyboardHeight = ((CSSVarObject.keyHeight + CSSVarObject.keyYSpacing) * height - CSSVarObject.keyYSpacing + minPadding * 2);
+  const widthRatio = containerWidth / keyboardWidth;
+  const heightRatio = containerHeight / keyboardHeight;
+  const minRatio = Math.min(widthRatio, heightRatio);
+  const ratio = Math.max(1, minRatio) || 1;
+
+  // console.log( {keyboardWidth, keyboardHeight});
+  // console.log( {containerWidth, containerHeight});
+  // console.log( {widthRatio, heightRatio, minRatio, ratio});
 
   return (
     <div

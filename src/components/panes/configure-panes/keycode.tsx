@@ -1,8 +1,24 @@
-import {FC, useState, useEffect, useMemo} from 'react';
+import {FC, useState, useEffect, useMemo, Key} from 'react';
 import styled from 'styled-components';
 import {Button} from '../../inputs/button';
 import {KeycodeModal} from '../../inputs/custom-keycode-modal';
 import {title, component} from '../../icons/keyboard';
+import {MessageDialog} from '../../inputs/message-dialog';
+import TextInput from '../../inputs/text-input';
+import {
+  TooltipContainer,
+} from 'src/components/two-string/unit-key/keycap-base';
+import {Keycap2DTooltip} from '../../inputs/tooltip';
+
+import {
+  faTrash,
+  faXmark
+} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {
+  IconButtonUnfilledContainer,
+} from 'src/components/inputs/icon-button';
+
 import * as EncoderPane from './encoder';
 import {
   keycodeInMaster,
@@ -44,6 +60,7 @@ import {
   getDisableFastRemap,
 } from 'src/store/settingsSlice';
 import {getNextKey} from 'src/utils/keyboard-rendering';
+import { update } from 'idb-keyval';
 const KeycodeList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, 64px);
@@ -69,11 +86,23 @@ const Keycode = styled(Button)<{disabled: boolean}>`
   box-shadow: none;
   position: relative;
   border-radius: 10px;
-  &:hover {
+  ${(props: any) => props.disabled && `
+    cursor:not-allowed;
+    background: var(--bg_menu);
+    border: 4px solid var(--bg_control);
+    transform: none;
+  `}
+  ${(props: any) => !props.disabled && `&:hover {
     border-color: var(--color_accent);
     transform: translate3d(0, -2px, 0);
+    }`}
+  ${(props: any) => props.disabled && `&:hover {
+    transform: none;
+    }`}
+
+  &:hover {
+    overflow: visible;
   }
-  ${(props: any) => props.disabled && `cursor:not-allowed;filter:opacity(50%);`}
 `;
 
 const KeycodeContent = styled.div`
@@ -117,6 +146,10 @@ const KeycodeDesc = styled.div`
   }
 `;
 
+function keyCodeToObject (acc: Record<string, IKeycode>, keycode: IKeycode): Record<string, IKeycode> {
+  return {...acc, [keycode.code]: keycode};
+};
+
 const generateKeycodeCategories = (basicKeyToByte: Record<string, number>, numMacros: number = 16) =>
   getKeycodes(numMacros).concat(getOtherMenu(basicKeyToByte));
 
@@ -140,6 +173,8 @@ export const Pane: FC = () => {
   return <KeycodePane />;
 };
 
+const allKeycodesId = 'all_keycodes';
+
 export const KeycodePane: FC = () => {
   const dispatch = useAppDispatch();
   const macros = useAppSelector((state: any) => state.macros);
@@ -162,11 +197,11 @@ export const KeycodePane: FC = () => {
     return null;
   }
 
-  const [selectedCategory, setSelectedCategory] = useState(
-    KeycodeCategories[0].id,
-  );
+  const [selectedCategory, setSelectedCategory] = useState(allKeycodesId);
   const [mouseOverDesc, setMouseOverDesc] = useState<string | null>(null);
   const [showKeyTextInputModal, setShowKeyTextInputModal] = useState(false);
+  const [keycapsFilter, setKeycapsFilter] = useState('');
+  const [codePendingForConfirmation, setCodePendingForConfirmation] = useState<number | null>(null);
 
   const getEnabledMenus = (): IKeycodeMenu[] => {
     if (isVIADefinitionV3(selectedDefinition)) {
@@ -218,7 +253,7 @@ export const KeycodePane: FC = () => {
         {getEnabledMenus().map(({id, label}) => (
           <SubmenuRow
             $selected={id === selectedCategory}
-            onClick={() => setSelectedCategory(id)}
+            onClick={() => setSelectedCategory(selectedCategory === id ? allKeycodesId : id)}
             key={id}
           >
             {label}
@@ -266,24 +301,33 @@ export const KeycodePane: FC = () => {
     if (code == 'text') {
       setShowKeyTextInputModal(true);
     } else {
-      return (
-        keycodeInMaster(code, basicKeyToByte) &&
-        updateKey(getByteForCode(code, basicKeyToByte))
-      );
-    }
+        if(keycodeInMaster(code, basicKeyToByte)) {
+          const c = getByteForCode(code, basicKeyToByte);
+          if(disableFastRemap) {
+            setCodePendingForConfirmation(c);
+          } else {
+            updateKey(c);
+          }
+        }
+      }
   };
 
-  const renderKeycode = (keycode: IKeycode, index: number) => {
+  const renderKeycode = (keycode: IKeycode, index: number, selected: boolean) => {
     const {code, title, name} = keycode;
     return (
       <Keycode
         key={code}
-        disabled={!keycodeInMaster(code, basicKeyToByte) && code != 'text'}
-        onClick={() => handleClick(code, index)}
+        disabled={!selected || !keycodeInMaster(code, basicKeyToByte) && code != 'text'}
+        onClick={() => {if(selected) {handleClick(code, index)}}}
         onMouseOver={() => setMouseOverDesc(title ? `${code}: ${title}` : code)}
         onMouseOut={() => setMouseOverDesc(null)}
       >
         <KeycodeContent>{name}</KeycodeContent>
+        <TooltipContainer $rotate={0}>
+          <Keycap2DTooltip>
+            {title ? `${code}: ${title}` : `${code}`}
+          </Keycap2DTooltip>
+        </TooltipContainer>
       </Keycode>
     );
   };
@@ -304,9 +348,11 @@ export const KeycodePane: FC = () => {
   const renderSelectedCategory = (
     keycodes: IKeycode[],
     selectedCategory: string,
+    selectedKeycode: number | null = null,
   ) => {
+
     const keycodeListItems = keycodes.map((keycode, i) =>
-      renderKeycode(keycode, i),
+      renderKeycode(keycode, i, !!selectedKeycode),
     );
     switch (selectedCategory) {
       case 'macro': {
@@ -340,6 +386,7 @@ export const KeycodePane: FC = () => {
                   code: `CUSTOM(${idx})`,
                 },
                 idx,
+                !!selectedKeycode
               );
             })}
           </KeycodeList>
@@ -351,16 +398,54 @@ export const KeycodePane: FC = () => {
     }
   };
 
-  const selectedCategoryKeycodes = KeycodeCategories.find(
-    ({id}) => id === selectedCategory,
-  )?.keycodes as IKeycode[];
+  const selectedCategoryKeycodes = useMemo(() => {
+    const allKeycodesList = KeycodeCategories.reduce<IKeycode[]>((acc, {keycodes}) => [...acc, ...keycodes], []);
+    const allUniqueKeycodes = Object.values(allKeycodesList.reduce(keyCodeToObject, {})) as IKeycode[];
+    const selectedKeycodes = KeycodeCategories.find(({id}) => id === selectedCategory,)?.keycodes as IKeycode[]
+    return selectedCategory === allKeycodesId ? allUniqueKeycodes: selectedKeycodes;
+  }, [KeycodeCategories, selectedCategory]);
 
+  const onConfirm = () => {
+    if(typeof codePendingForConfirmation === 'number'){
+      updateKey(codePendingForConfirmation as number);
+    }
+    setCodePendingForConfirmation(null);
+  };
+  const onCancel = () => { setCodePendingForConfirmation(null); };
+  const placeholder = `Search among ${selectedCategoryKeycodes.length} keycodes`;
+  const keycapsFilterMargin = '10px 10px 10px 30px';
+  const filteredKeycodes = selectedCategoryKeycodes.filter((keycode) => {
+    const {name, code, title} = keycode;
+    return (
+      name?.toLowerCase().includes(keycapsFilter.toLowerCase()) ||
+      code?.toLowerCase().includes(keycapsFilter.toLowerCase()) ||
+      title?.toLowerCase().includes(keycapsFilter.toLowerCase())
+    );
+  }
+  );
   return (
     <>
+     <MessageDialog isOpen={codePendingForConfirmation !== null} onConfirm={onConfirm} onCancel={onCancel}>
+        Save on the keyboard?
+      </MessageDialog>
       <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
       <OverflowCell>
+        <TextInput $width='50%' $margin={keycapsFilterMargin} type="text" placeholder={placeholder} onChange={(e) => setKeycapsFilter(e.target.value)} value={keycapsFilter} />
+        <IconButtonUnfilledContainer
+            onClick={() => {
+              setKeycapsFilter('');
+            }}
+            disabled={keycapsFilter.length === 0}
+            style={{borderRight: '1px solid var(--color_accent)'}}
+          >
+            <FontAwesomeIcon
+              size={'sm'}
+              color={'var(--color_accent)'}
+              icon={faXmark}
+            />
+          </IconButtonUnfilledContainer>
         <KeycodeContainer>
-          {renderSelectedCategory(selectedCategoryKeycodes, selectedCategory)}
+          {renderSelectedCategory(filteredKeycodes, selectedCategory, selectedKey)}
         </KeycodeContainer>
         <KeycodeDesc>{mouseOverDesc}</KeycodeDesc>
         {showKeyTextInputModal && renderKeyInputModal()}

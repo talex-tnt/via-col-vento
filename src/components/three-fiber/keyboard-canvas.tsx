@@ -43,26 +43,24 @@ export const KeyboardCanvas: React.FC<
     }
   }, []);
 
-  const ratio =
-    Math.min(
-      Math.min(
-        1,
-        containerDimensions &&
-          containerDimensions.width /
-            ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width -
-              CSSVarObject.keyXSpacing +
-              70),
-      ),
-      500 /
-        ((CSSVarObject.keyHeight + CSSVarObject.keyYSpacing) * height -
-          CSSVarObject.keyYSpacing +
-          70),
-    ) || 1;
+  const containerHeight = containerDimensions.height;
+  const containerWidth = containerDimensions.width;
+  const minPadding = 60;
+  const keyboardWidth = ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width - CSSVarObject.keyXSpacing + minPadding * 2);
+  const keyboardHeight = ((CSSVarObject.keyHeight + CSSVarObject.keyYSpacing) * height - CSSVarObject.keyYSpacing + minPadding * 2);
+  const widthRatio = containerWidth / keyboardWidth;
+  const heightRatio = containerHeight / keyboardHeight;
+  const minRatio = Math.min(widthRatio, heightRatio);
+  const ratio = Math.max(1, minRatio) || 1;
+
+  // console.log( {keyboardWidth, keyboardHeight});
+  // console.log( {containerWidth, containerHeight});
+  // console.log( {widthRatio, heightRatio, minRatio, ratio});
 
   return (
     <group
       position={[0, -0.0, -19]}
-      scale={0.015 * ratio}
+      scale={0.01 * ratio}
       visible={!shouldHide}
     >
       <KeyboardCanvasContent

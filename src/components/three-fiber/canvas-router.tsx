@@ -64,10 +64,10 @@ const KeyboardBG: React.FC<{
   );
 }, shallowEqual);
 
-export const CanvasRouter = () => {
+export const CanvasRouter = ({ height = 500 }) => {
   return (
     <Suspense fallback={null}>
-      <LazyRouter />
+      <LazyRouter height={height}/>
     </Suspense>
   );
 };
@@ -77,7 +77,7 @@ const LazyRouter = React.lazy(async () => {
   return {default: NonSuspenseCanvasRouter};
 });
 
-export const NonSuspenseCanvasRouter = () => {
+export const NonSuspenseCanvasRouter = ({ height = 500}) => {
   const [path] = useLocation();
   const body = useRef(document.body);
   const containerRef = useRef(null);
@@ -124,7 +124,7 @@ export const NonSuspenseCanvasRouter = () => {
     <>
       <div
         style={{
-          height: 500,
+          height,
           width: '100%',
           top: 0,
           transform: hideCanvasScene

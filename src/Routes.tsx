@@ -39,7 +39,7 @@ export default () => {
             <GlobalStyle />
             <Router base={base !== '/' ? base : undefined} >
               {hasHIDSupport && <UnconnectedGlobalMenu />}
-              <CanvasRouter />
+              <CanvasRouter height={700}/>
               <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
             </Router>
         </TestContext.Provider>

@@ -244,7 +244,6 @@ const ConfigureGrid = () => {
         }}
       >
         <div style={{pointerEvents: 'all'}}>
-          <LayerControl />
           <Badge />
         </div>
       </ConfigureFlexCell>
@@ -269,6 +268,23 @@ const ConfigureGrid = () => {
         </MenuCell>
 
         {SelectedPane && <SelectedPane />}
+        <ConfigureFlexCell
+        onClick={(evt) => {
+          if ((evt.target as any).nodeName !== 'CANVAS')
+            dispatch(clearSelectedKey());
+        }}
+        style={{
+          pointerEvents: 'none',
+          position: 'absolute',
+          bottom: 30,
+          left: 0,
+          right: 0,
+        }}
+      >
+        <div style={{pointerEvents: 'all'}}>
+          <LayerControl />
+        </div>
+      </ConfigureFlexCell>
       </Grid>
     </>
   );
