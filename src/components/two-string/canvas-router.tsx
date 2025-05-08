@@ -83,7 +83,6 @@ export const CanvasRouter = ({ height = "50%"} : { height?: number | string }) =
   const { hideCanvasScene, showAuthorizeButton } = useCanvasConfig();
 
   const hideTerrainBG = showLoader;
-  console.log('here', hideCanvasScene, hideTerrainBG);
   return (
     <>
       <div

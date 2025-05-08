@@ -38,8 +38,7 @@ export const useCanvasConfig = () => {
 		hideDesignScene ||
 		hideConfigureScene;
 
-		console.log({hideCanvasScene, showAuthorizeButton, path, hideDesignScene, hideConfigureScene, selectedDefinition, loadProgress, progress});
-
+		// console.log({hideCanvasScene, showAuthorizeButton, path, hideDesignScene, hideConfigureScene, selectedDefinition, loadProgress, progress});
 	return { hideCanvasScene, showAuthorizeButton, path, selectedDefinition };
 }
 
