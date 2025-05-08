@@ -17,7 +17,7 @@ const ExternalLinkContainer = styled.span`
 export const ExternalLinks = () => (
   <ExternalLinkContainer>
     <span>
-      Please support the original project:
+      This app is a fork of
     </span>
     <a href="https://caniusevia.com/" target="_blank">
       <CategoryIconContainer>
