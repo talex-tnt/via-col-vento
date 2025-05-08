@@ -29,8 +29,7 @@ const GlobalStyle = createGlobalStyle`
 
 export default () => {
   const hasHIDSupport = 'hid' in navigator || OVERRIDE_HID_CHECK;
-  const {hideCanvasScene, path, selectedDefinition} = useCanvasConfig();
-  const isConfigureRoute = path === '/';
+  const {hideCanvasScene, hideConfigureScene} = useCanvasConfig();
   const refs = useRef<{
     topPanelElement: HTMLElement | null;
     bottomPanelElement: HTMLElement | null;
@@ -48,9 +47,7 @@ export default () => {
     };
   }, []);
 
-
-
-  const canvasRouterHeight = (isConfigureRoute && !selectedDefinition) ? "50%" : "100%";
+  const canvasRouterHeight = hideConfigureScene ? "50%" : "100%";
 
   const renderMode = useAppSelector(getRenderMode);
   const RouteComponents = useMemo(
@@ -70,7 +67,7 @@ export default () => {
     if(refs.current) {
       const {topPanelElement, bottomPanelElement, resizeHandleElement} = refs.current;
       if(topPanelElement && bottomPanelElement && resizeHandleElement) {
-        if(isConfigureRoute && !selectedDefinition) {
+        if(hideConfigureScene) {
           topPanelElement.style.display = is2DRendering ? "none": "block";
           bottomPanelElement.style.display = !is2DRendering ? "none": "block";
           resizeHandleElement.style.display = "none";
@@ -81,7 +78,7 @@ export default () => {
         }
       }
   }
-}, [hideCanvasScene, isConfigureRoute]);
+}, [hideCanvasScene, hideConfigureScene]);
   const base = import.meta.env.BASE_URL;
   return (
     <>
