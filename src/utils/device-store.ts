@@ -71,7 +71,7 @@ export async function syncStore(): Promise<DefinitionIndex> {
       return currentDefinitionIndex;
     }
     // Get definition index file
-    const url = `${import.meta.env.BASE_URL ?? '/'}definitions/supported_kbs.json`;
+    const url = `${import.meta.env.BASE_URL}/definitions/supported_kbs.json`;
     console.log('Fetching definition from', url);
     const response = await fetch(url, {
       cache: 'reload',
@@ -121,7 +121,7 @@ export const getMissingDefinition = async <
   version: K,
 ): Promise<[DefinitionVersionMap[K], K]> => {
   const vpid = getVendorProductId(device.vendorId, device.productId);
-  const url = `${import.meta.env.BASE_URL ?? '/'}definitions/${version}/${vpid}.json`;
+  const url = `${import.meta.env.BASE_URL}/definitions/${version}/${vpid}.json`;
   console.log('Fetching definition from', url);
   const response = await fetch(url);
   const json: DefinitionVersionMap[K] = await response.json();
