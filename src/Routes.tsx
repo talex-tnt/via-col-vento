@@ -17,7 +17,6 @@ import {
   PanelGroup,
   PanelResizeHandle,
   getPanelElement,
-  getPanelGroupElement,
   getResizeHandleElement,
 } from "react-resizable-panels";
 
@@ -27,7 +26,7 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-export default () => {
+function InnerRoutes() {
   const hasHIDSupport = 'hid' in navigator || OVERRIDE_HID_CHECK;
   const {hideCanvasScene, hideConfigureScene} = useCanvasConfig();
   const refs = useRef<{
@@ -79,24 +78,32 @@ export default () => {
       }
   }
 }, [hideCanvasScene, hideConfigureScene]);
+
+  return (
+    <>
+    {hasHIDSupport && <UnconnectedGlobalMenu />}
+
+    <PanelGroup direction="vertical">
+      <Panel id="top-panel">
+        <CanvasRouter height={canvasRouterHeight} />
+      </Panel>
+      <PanelResizeHandle  id="resize-handle"/>
+      <Panel id="bottom-panel">
+        <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
+      </Panel>
+    </PanelGroup>
+    </>);
+}
+
+export default () => {
+  const testContextState = useState({clearTestKeys: () => {}});
   const base = import.meta.env.BASE_URL;
   return (
     <>
         <TestContext.Provider value={testContextState}>
             <GlobalStyle />
             <Router base={base !== '/' ? base : undefined} >
-              {hasHIDSupport && <UnconnectedGlobalMenu />}
-
-              <PanelGroup direction="vertical">
-                <Panel id="top-panel">
-                  <CanvasRouter height={canvasRouterHeight} />
-                </Panel>
-                <PanelResizeHandle  id="resize-handle"/>
-                <Panel id="bottom-panel">
-                  <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
-                </Panel>
-              </PanelGroup>
-
+              <InnerRoutes />
             </Router>
         </TestContext.Provider>
     </>
