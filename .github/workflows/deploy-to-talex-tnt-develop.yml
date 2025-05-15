@@ -30,7 +30,9 @@ jobs:
         run: echo "basename=via-col-vento-dev" >> $GITHUB_ENV
 
       - name: Build project with Bun
-        run: BASE_PATH="/${{ env.basename }}" bun run build
+        run: |
+          bun run refresh-kbs
+          BASE_PATH="/${{ env.basename }}" bun run build
 
       - name: Clone GitHub Pages repo
         run: |
