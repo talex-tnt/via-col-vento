@@ -60,18 +60,16 @@ initDeviceStore();
 /** Retreives the latest definition index and invalidates the definition cache if a new one is found */
 export async function syncStore(): Promise<DefinitionIndex> {
   const currentDefinitionIndex = deviceStore.get('definitionIndex');
-
   // TODO: fall back to cache if can't hit endpoint, notify user
   try {
     // Get hash file
     //    const hash = await (await fetch('/definitions/hash.json')).json();
     const hash = document.getElementById('definition_hash')?.dataset.hash || '';
-
     if (hash === currentDefinitionIndex.hash) {
       return currentDefinitionIndex;
     }
     // Get definition index file
-    const url = `${import.meta.env.BASE_URL}/definitions/supported_kbs.json`;
+    const url = `${window.location.origin}${import.meta.env.BASE_URL}/definitions/supported_kbs.json`;
     console.log('Fetching definition from', url);
     const response = await fetch(url, {
       cache: 'reload',
@@ -120,8 +118,10 @@ export const getMissingDefinition = async <
   device: AuthorizedDevice,
   version: K,
 ): Promise<[DefinitionVersionMap[K], K]> => {
+
   const vpid = getVendorProductId(device.vendorId, device.productId);
-  const url = `${import.meta.env.BASE_URL}/definitions/${version}/${vpid}.json`;
+  const url = `${window.location.origin}${import.meta.env.BASE_URL}/definitions/${version}/${vpid}.json`;
+
   console.log('Fetching definition from', url);
   const response = await fetch(url);
   const json: DefinitionVersionMap[K] = await response.json();
